@@ -1,5 +1,6 @@
 # Agenda Telefonica em Python
-- criando um aplicativo de Agenda Telefônica usando Python. Este é um projeto intermédio que abrange a criação de uma interface gráfica (GUI) com Tkinter e a manipulação de dados usando arquivos CSV em Python.
+
+#### criando um aplicativo de Agenda Telefônica usando Python. Este é um projeto intermédio que abrange a criação de uma interface gráfica (GUI) com Tkinter e a manipulação de dados usando arquivos CSV em Python.
 
 ### Tkinter para GUI: 
 - Usando a biblioteca Tkinter para criar a interface gráfica do aplicativo. ultilizando janelas, botões, entradas de texto e outros elementos de GUI.
