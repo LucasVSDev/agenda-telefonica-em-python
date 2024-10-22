@@ -4,8 +4,8 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 
-import sys
-import csv
+# importando PILLOW
+from PIL import Image, ImageTk
 
 # Cores ######################
 tema = "clam"
@@ -51,10 +51,16 @@ frameBaixo = Frame(janela, width=500, height=248, bg=co2, relief="flat")
 frameBaixo.grid(row=2, column=0, columnspan=2, pady=1, padx=10, sticky=NW)
 
 # # Configurando frames titulo cima --------------------------------------
+app_img = Image.open(r"img/tele.png")
+app_img = app_img.resize((30, 30), Image.Resampling.LANCZOS)
+app_img = ImageTk.PhotoImage(app_img)
 l_titulo = Label(
     frameCima,
-    text="Agenda Telefônica",
-    anchor=NE,
+    image=app_img,
+    text=" Agenda",
+    compound=LEFT,
+    relief='flat',
+    anchor=NW,
     font=("roboto 20 bold"),
     bg=co3,
     fg=co1,
@@ -129,8 +135,8 @@ b_ver = Button(
     text="Adicionar",
     width=10,
     font=("arial 8 bold"),
-    bg=co1,
-    fg=co4,
+    bg=co5,
+    fg=co8,
     relief=RAISED,
     overrelief=RIDGE,
 )
@@ -177,16 +183,16 @@ tree.configure(yscrollcommand=vsb.set)
 tree.grid(column=0, row=0, sticky=NSEW)
 vsb.grid(column=1, row=0, sticky=NS)
 
-hd = ["nw","nw","nw","nw","nw"]
-h = [120,50,80,120,200]
-n = [0]
+hd = ["nw","nw","nw","nw"]
+h = [200,60,100,200]
+n = 0
 
 #tree cabeçalho
-tree.heading(0, text="Nome", anchor=NW)
-tree.heading(1, text="Sexo", anchor=NW)
-tree.heading(2, text="Telefone", anchor=NW)
-tree.heading(3, text="Email", anchor=NW)
-
+for col in cabecalho:
+    tree.heading(col, text=col.title(), anchor=NW)
+    # ajustando a largura da coluna para o titulo
+    tree.column(col, width=h[n], anchor=hd[n])
+    n += 1
 # tree corpo
 tree.column(0, width=120, anchor='nw')
 tree.column(1, width=50, anchor='nw')
