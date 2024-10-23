@@ -7,6 +7,8 @@ from tkinter import messagebox
 # importando PILLOW
 from PIL import Image, ImageTk
 
+from dados import *
+
 # Cores ######################
 tema = "clam"
 co0 = "#2e2d2d"  # Preta
@@ -39,9 +41,9 @@ janela.resizable(width=FALSE, height=FALSE)
 style = Style(janela)
 style.theme_use(tema)
 
-# #################### frames ############################
+##################### frames ############################
 # Criando frames ------------------------------------------------
-frameCima = Frame(janela, width=500, height=50, bg=co3, relief='flat')
+frameCima = Frame(janela, width=500, height=50, bg=co3, relief="flat")
 frameCima.grid(row=0, column=0, pady=1, padx=0, sticky=NSEW)
 
 frameMeio = Frame(janela, width=500, height=150, bg=co1, relief="flat")
@@ -50,7 +52,7 @@ frameMeio.grid(row=1, column=0, pady=1, padx=0, sticky=NSEW)
 frameBaixo = Frame(janela, width=500, height=248, bg=co2, relief="flat")
 frameBaixo.grid(row=2, column=0, columnspan=2, pady=1, padx=10, sticky=NW)
 
-# # Configurando frames titulo cima --------------------------------------
+# Configurando frames titulo cima --------------------------------------
 app_img = Image.open(r"img/tele.png")
 app_img = app_img.resize((30, 30), Image.Resampling.LANCZOS)
 app_img = ImageTk.PhotoImage(app_img)
@@ -59,7 +61,7 @@ l_titulo = Label(
     image=app_img,
     text=" Agenda",
     compound=LEFT,
-    relief='flat',
+    relief="flat",
     anchor=NW,
     font=("roboto 20 bold"),
     bg=co3,
@@ -72,34 +74,161 @@ l_linha = Label(
 )
 l_linha.place(x=0, y=46)
 
+
+# Configurando tabela de baixo --------------------------------------
+def mostrar_dados():
+    # crinado um treeview com uma scrollbar
+    cabecalho = ["Nome", "Sexo", "Telefone", "Email"]
+    dados = ver_dados()
+
+    global tree
+
+    tree = ttk.Treeview(
+        frameBaixo, selectmode=EXTENDED, columns=cabecalho, show="headings"
+    )
+
+    vsb = ttk.Scrollbar(frameBaixo, orient=VERTICAL, command=tree.yview)
+
+    tree.configure(yscrollcommand=vsb.set)
+
+    tree.grid(column=0, row=0, sticky=NSEW)
+    vsb.grid(column=1, row=0, sticky=NS)
+
+    hd = ["nw", "nw", "nw", "nw"]
+    h = [200, 60, 100, 200]
+    n = 0
+
+    # tree cabeçalho
+    for col in cabecalho:
+        tree.heading(col, text=col.title(), anchor=NW)
+        # ajustando a largura da coluna para o titulo
+        tree.column(col, width=h[n], anchor=hd[n])
+        n += 1
+    # tree corpo
+    tree.column(0, width=120, anchor="nw")
+    tree.column(1, width=50, anchor="nw")
+    tree.column(2, width=100, anchor="nw")
+    tree.column(0, width=120, anchor=hd[0])
+
+    for item in dados:
+        tree.insert("", "end", values=item)
+
+
+mostrar_dados()
+
+
+# Função inserir
+def inserir():
+    nome = e_nome.get()
+    sexo = c_sexo.get()
+    tele = e_tel.get()
+    email = e_email.get()
+
+    dados = [nome, sexo, tele, email]
+
+    if nome == "" or sexo == "" or tele == "" or email == "":
+        messagebox.showwarning("Dados", "Por favor, preenchar todos os campos")
+    else:
+        adicionar_dados(dados)
+        messagebox.showerror("Dados", "Os dados foram adicionados com sucesso")
+
+        e_nome.delete(0, "end")
+        c_sexo.delete(0, "end")
+        e_tel.delete(0, "end")
+        e_email.delete(0, "end")
+
+        mostrar_dados()
+
+
+# Função atualizar
+def atualizar():
+    try:
+        treev_dados = tree.focus()
+        treev_dicionario = tree.item(treev_dados)
+        tree_lista = treev_dicionario["values"]
+
+        nome = tree_lista[0]
+        sexo = tree_lista[1]
+        telefone = str(tree_lista[2])
+        email = tree_lista[3]
+
+        e_nome.insert(0, nome)
+        c_sexo.insert(0, sexo)
+        e_tel.insert(0, telefone)
+        e_email.insert(0, email)
+
+        def confirmar():
+            nome = e_nome.get()
+            sexo = c_sexo.get()
+            telefone = e_tel.get()
+            email = e_email.get()
+
+            dados = [telefone,nome, sexo, telefone, email]
+
+            atualizar_dados(dados)
+
+            messagebox.showerror("Dados", "Os dados foram atualizados com sucesso")
+
+            e_nome.delete(0, "end")
+            c_sexo.delete(0, "end")
+            e_tel.delete(0, "end")
+            e_email.delete(0, "end")
+            
+            b_confirmar.destroy()
+
+            mostrar_dados()
+
+        b_confirmar = Button(
+            frameMeio,
+            command=confirmar,
+            text="confimar",
+            width=10,
+            font=("arial 8 bold"),
+            bg=co5,
+            fg=co7,
+            relief=RAISED,
+            overrelief=RIDGE,
+        )
+        b_confirmar.place(x=288, y=50)
+
+    except:
+        messagebox.showwarning("Dados", "Por favor selecione uma informação na tabela")
+
+
 # Configurando Label esqundo meio --------------------------------------
 l_nome = Label(
     frameMeio, text="Nome *", anchor=NW, font=("roboto 10 bold"), bg=co1, fg=co4
 )
 l_nome.place(x=10, y=20)
-e_nome = Entry(frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1)
+e_nome = Entry(
+    frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1
+)
 e_nome.place(x=80, y=20)
 
 l_sexo = Label(
     frameMeio, text="Sexo *", anchor=NW, font=("roboto 10 bold"), bg=co1, fg=co4
 )
 l_sexo.place(x=10, y=50)
-e_sexo = Combobox(frameMeio, width=27)
-e_sexo["value"] = ("", "F", "M")
-e_sexo.place(x=80, y=50)
+c_sexo = Combobox(frameMeio, width=27)
+c_sexo["value"] = ("", "F", "M")
+c_sexo.place(x=80, y=50)
 
 l_tel = Label(
     frameMeio, text="Telefone *", anchor=NW, font=("roboto 10 bold"), bg=co1, fg=co4
 )
 l_tel.place(x=10, y=80)
-e_tel = Entry(frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1)
+e_tel = Entry(
+    frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1
+)
 e_tel.place(x=80, y=80)
 
 l_email = Label(
     frameMeio, text="Email *", anchor=NW, font=("roboto 10 bold"), bg=co1, fg=co4
 )
 l_email.place(x=10, y=110)
-e_email = Entry(frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1)
+e_email = Entry(
+    frameMeio, width=25, justify=LEFT, relief=FLAT, font=("", 10), highlightthickness=1
+)
 e_email.place(x=80, y=110)
 
 # Configurando button direito meio --------------------------------------
@@ -120,6 +249,7 @@ e_procurar.place(x=347, y=21)
 
 b_ver = Button(
     frameMeio,
+    command=mostrar_dados,
     text="Ver dados",
     width=10,
     font=("arial 8 bold"),
@@ -130,9 +260,10 @@ b_ver = Button(
 )
 b_ver.place(x=288, y=50)
 
-b_ver = Button(
+b_adicionar = Button(
     frameMeio,
-    text="Adicionar",
+    command=inserir,
+    text="adicionar",
     width=10,
     font=("arial 8 bold"),
     bg=co5,
@@ -140,10 +271,11 @@ b_ver = Button(
     relief=RAISED,
     overrelief=RIDGE,
 )
-b_ver.place(x=400, y=50)
+b_adicionar.place(x=400, y=50)
 
-l_atualizar = Button(
+b_atualizar = Button(
     frameMeio,
+    command=atualizar,
     text="Atualizar",
     width=10,
     font=("arial 8 bold"),
@@ -152,9 +284,9 @@ l_atualizar = Button(
     relief=RAISED,
     overrelief=RIDGE,
 )
-l_atualizar.place(x=400, y=80)
+b_atualizar.place(x=400, y=80)
 
-l_deletar = Button(
+b_deletar = Button(
     frameMeio,
     text="Deletar",
     width=10,
@@ -164,42 +296,6 @@ l_deletar = Button(
     relief=RAISED,
     overrelief=RIDGE,
 )
-l_deletar.place(x=400, y=110)
-
-# Configurando tabela baixo --------------------------------------
-
-#crinado um treeview com uma scrollbar
-cabecalho = ["Nome","Sexo","Telefone","Email"]
-dados = ["Joao pesso", "M", "(91)987484562","joao@test.com"], ["Maria clara", "F", "(91)987596324","maria@test.com"]
-
-global tree
-
-tree = ttk.Treeview(frameBaixo, selectmode=EXTENDED, columns=cabecalho, show="headings")
-
-vsb = ttk.Scrollbar(frameBaixo, orient=VERTICAL, command=tree.yview)
-
-tree.configure(yscrollcommand=vsb.set)
-
-tree.grid(column=0, row=0, sticky=NSEW)
-vsb.grid(column=1, row=0, sticky=NS)
-
-hd = ["nw","nw","nw","nw"]
-h = [200,60,100,200]
-n = 0
-
-#tree cabeçalho
-for col in cabecalho:
-    tree.heading(col, text=col.title(), anchor=NW)
-    # ajustando a largura da coluna para o titulo
-    tree.column(col, width=h[n], anchor=hd[n])
-    n += 1
-# tree corpo
-tree.column(0, width=120, anchor='nw')
-tree.column(1, width=50, anchor='nw')
-tree.column(2, width=100, anchor='nw')
-tree.column(0, width=120, anchor=hd[0])
-
-for item in dados:
-    tree.insert('', "end", values=item)
+b_deletar.place(x=400, y=110)
 
 janela.mainloop()
