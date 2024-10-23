@@ -163,7 +163,7 @@ def atualizar():
             telefone = e_tel.get()
             email = e_email.get()
 
-            dados = [telefone,nome, sexo, telefone, email]
+            dados = [telefone, nome, sexo, telefone, email]
 
             atualizar_dados(dados)
 
@@ -173,7 +173,7 @@ def atualizar():
             c_sexo.delete(0, "end")
             e_tel.delete(0, "end")
             e_email.delete(0, "end")
-            
+
             b_confirmar.destroy()
 
             mostrar_dados()
@@ -194,6 +194,36 @@ def atualizar():
     except:
         messagebox.showwarning("Dados", "Por favor selecione uma informação na tabela")
 
+
+def remover():
+    try:
+        treev_dados = tree.focus()
+        treev_dicionario = tree.item(treev_dados)
+        tree_lista = treev_dicionario["values"]
+        
+        telefone = str(tree_lista[2])
+        remover_dados(telefone)
+        
+        messagebox.showerror("Dados", "Os dados foram removidos com sucesso")
+        
+        for widget in frameBaixo.winfo_children():
+            widget.destroy()
+        
+        mostrar_dados()
+        
+    except:
+        messagebox.showwarning("Dados", "Por favor selecione uma informação na tabela")
+
+def procurar():
+    telefone = e_procurar.get()
+    
+    dados = pesquisar_dados(telefone)
+    tree.delete(*tree.get_children())
+    
+    for item in dados:
+        tree.insert("", "end", values=item)
+    
+    e_procurar.delete(0, "end")
 
 # Configurando Label esqundo meio --------------------------------------
 l_nome = Label(
@@ -234,6 +264,7 @@ e_email.place(x=80, y=110)
 # Configurando button direito meio --------------------------------------
 b_procurar = Button(
     frameMeio,
+    command=procurar,
     text="Procurar",
     font=("roboto 8 bold"),
     bg=co1,
@@ -288,6 +319,7 @@ b_atualizar.place(x=400, y=80)
 
 b_deletar = Button(
     frameMeio,
+    command=remover,
     text="Deletar",
     width=10,
     font=("arial 8 bold"),
